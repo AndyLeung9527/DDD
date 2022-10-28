@@ -8,7 +8,6 @@ try
     var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddCustomMvc();
     builder.Services.AddCustomSwagger();
-    builder.Host.UseContentRoot(Directory.GetCurrentDirectory());
     builder.Host.UseSerilog();
     
     var app = builder.Build();
