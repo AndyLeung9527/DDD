@@ -36,7 +36,7 @@ public class Order
     }
 
     public Order(string userId, string userName, Address address, int cardTypeId, string cardNumber, string cardSecurityNumber,
-        string cardHolderName, DateTime cardExpiration, int? buyerId = null, int? paymentMethodId = null):this()
+        string cardHolderName, DateTime cardExpiration, int? buyerId = null, int? paymentMethodId = null) : this()
     {
         _buyerId = buyerId;
         _paymentMethodId = paymentMethodId;
@@ -48,14 +48,14 @@ public class Order
                                     cardSecurityNumber, cardHolderName, cardExpiration);
     }
 
-    public void AddOrderItem(int productId, string productName,decimal unitPrice,decimal discount,string pictureUrl,int units = 1)
+    public void AddOrderItem(int productId, string productName, decimal unitPrice, decimal discount, string pictureUrl, int units = 1)
     {
         var existingOrderForProduct = _orderItems.Where(o => o.ProductId == productId)
             .SingleOrDefault();
 
-        if(existingOrderForProduct != null)
+        if (existingOrderForProduct != null)
         {
-            if(discount > existingOrderForProduct.GetCurrentDiscount())
+            if (discount > existingOrderForProduct.GetCurrentDiscount())
             {
                 existingOrderForProduct.SetNewDiscount(discount);
             }
@@ -81,7 +81,7 @@ public class Order
 
     public void SetAwaitingValidationStatus()
     {
-        if(_orderStatusId == OrderStatus.Submitted.Id)
+        if (_orderStatusId == OrderStatus.Submitted.Id)
         {
             AddDomainEvent(new OrderStatusChangedToAwaitingValidationDomainEvent(Id, _orderItems));
             _orderStatusId = OrderStatus.AwaitingValidation.Id;
@@ -90,7 +90,7 @@ public class Order
 
     public void SetStockConfirmedStatus()
     {
-        if(_orderStatusId == OrderStatus.AwaitingValidation.Id)
+        if (_orderStatusId == OrderStatus.AwaitingValidation.Id)
         {
             AddDomainEvent(new OrderStatusChangedToStockConfirmedDomainEvent(Id));
 
@@ -101,7 +101,7 @@ public class Order
 
     public void SetPaidStatus()
     {
-        if(_orderStatusId == OrderStatus.StockConfirmed.Id)
+        if (_orderStatusId == OrderStatus.StockConfirmed.Id)
         {
             AddDomainEvent(new OrderStatusChangedToPaidDomainEvent(Id, _orderItems));
 
@@ -112,7 +112,7 @@ public class Order
 
     public void SetShippedStatus()
     {
-        if(_orderStatusId != OrderStatus.Paid.Id)
+        if (_orderStatusId != OrderStatus.Paid.Id)
         {
             StatusChangeException(OrderStatus.Shipped);
         }
@@ -124,7 +124,7 @@ public class Order
 
     public void SetCancelledStatus()
     {
-        if(_orderStatusId == OrderStatus.Paid.Id ||
+        if (_orderStatusId == OrderStatus.Paid.Id ||
             _orderStatusId == OrderStatus.Shipped.Id)
         {
             StatusChangeException(OrderStatus.Cancelled);
@@ -137,7 +137,7 @@ public class Order
 
     public void SetCancelledStatusWhenStockIsRejected(IEnumerable<int> orderStockRejectedItems)
     {
-        if(_orderStatusId == OrderStatus.AwaitingValidation.Id)
+        if (_orderStatusId == OrderStatus.AwaitingValidation.Id)
         {
             _orderStatusId = OrderStatus.Cancelled.Id;
 
@@ -151,7 +151,7 @@ public class Order
     }
 
     private void AddOrderStartedDomainEvent(string userId, string userName, int cardTypeId, string cardNumber,
-        string cardSecurityNumber,string cardHolderName, DateTime cardExpiration)
+        string cardSecurityNumber, string cardHolderName, DateTime cardExpiration)
     {
         var orderStartedDomainEvent = new OrderStartedDomainEvent(this, userId, userName, cardTypeId,
                                                                     cardNumber, cardSecurityNumber,
@@ -162,5 +162,10 @@ public class Order
     private void StatusChangeException(OrderStatus orderStatusToChange)
     {
         throw new OrderingDomainException($"Is not possible to change the order status from {OrderStatus.Name} to {orderStatusToChange.Name}.");
+    }
+
+    public decimal GetTotal()
+    {
+        return _orderItems.Sum(o => o.GetUnits() * o.GetUnitPrice());
     }
 }

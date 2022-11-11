@@ -19,6 +19,8 @@ public static class ServiceCollectionExtensions
                 .AllowCredentials());
         });
 
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
         return services;
     }
 
@@ -36,5 +38,27 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-}
 
+    public static IServiceCollection AddCustomMediator(this IServiceCollection services)
+    {
+        services.AddMediatR(typeof(Program).Assembly);
+        services.AddScoped<IRequestHandler<IdentifiedCommand<CancelOrderCommand, bool>, bool>, IdentityCommandHandler<CancelOrderCommand, bool>>();
+        services.AddScoped<IRequestHandler<IdentifiedCommand<ShipOrderCommand, bool>, bool>, IdentityCommandHandler<ShipOrderCommand, bool>>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCustomInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IRequestManager, RequestManager>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IIdentityService, IdentityService>();
+
+        services.AddDbContext<OrderingContext>(options =>
+        {
+            options.UseMySql(configuration["ConnectionString"], MySqlServerVersion.LatestSupportedServerVersion);
+        });
+
+        return services;
+    }
+}

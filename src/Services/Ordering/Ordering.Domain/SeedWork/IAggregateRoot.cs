@@ -1,3 +1,3 @@
 ﻿namespace Ordering.Domain.SeedWork;
 
-interface IAggregateRoot { }
+public interface IAggregateRoot { }

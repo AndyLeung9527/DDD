@@ -1,13 +1,18 @@
+using System.Reflection;
+
 var configuration = GetConfiguration();
 
 Log.Logger = CreateSerilogLogger(configuration);
 
 try
 {
+    Log.Information($"{typeof(Program).Assembly}");
     Log.Information("Configuring web host ({ApplicationContext})...", Program.AppName);
     var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddCustomMvc();
     builder.Services.AddCustomSwagger();
+    builder.Services.AddCustomInfrastructure(configuration);
+    builder.Services.AddCustomMediator();
     builder.Host.UseSerilog();
     
     var app = builder.Build();
