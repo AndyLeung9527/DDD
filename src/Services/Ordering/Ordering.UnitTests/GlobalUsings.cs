@@ -1,0 +1,10 @@
+﻿global using MediatR;
+global using Moq;
+global using Ordering.API.Application.Commands;
+global using Ordering.API.Controllers;
+global using Ordering.API.Infrastructure.Services;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.AspNetCore.Mvc;
+global using Xunit;
+global using System.Net;
+global using Ordering.API.Application.Models;
